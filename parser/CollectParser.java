@@ -1,0 +1,59 @@
+package com.ustb.parser;
+
+import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.ustb.entity.E_Card;
+import com.ustb.model.BeanData;
+import com.ustb.model.CollectData;
+import com.ustb.status.StatusCode;
+
+public class CollectParser extends BeanParser {
+
+	@Override
+	public BeanData parser(String result) {
+		CollectData collectData = new CollectData();
+		try {
+			JSONObject jsonObject = new JSONObject(result);
+			int code = jsonObject.getInt("code");
+			int flag = jsonObject.getInt("flag");
+			collectData.setCode(code);
+			collectData.setFlag(flag);
+			if (flag == StatusCode.Dao.SELECT_SUCCESS) {
+				int id = jsonObject.getInt("id");
+				collectData.setId(id);
+			}
+			if (flag == StatusCode.Dao.INSERT_SUCCESS) {
+				int id = jsonObject.getInt("id");
+				collectData.setId(id);
+			}
+			if (flag == StatusCode.Dao.UPDATE_SUCCESS) {
+				ArrayList<E_Card> list = new ArrayList<E_Card>();
+				JSONArray array = jsonObject.getJSONArray("list");
+				for (int i = 0; i < array.length(); i++) {
+					JSONObject object = array.getJSONObject(i);
+					E_Card card = new E_Card();
+					card.setCardid(object.getInt("cardid"));
+					card.setCardtitle(object.getString("cardtitle"));
+					card.setCardmess(object.getString("cardmess"));
+					card.setCarddate(object.getString("carddate"));
+					card.setCardphoto1(object.getString("cardphoto1"));
+					card.setUserid(object.getInt("userid"));
+					card.setUsername(object.getString("username"));
+					card.setNum(object.getInt("num"));
+					list.add(card);
+				}
+				collectData.setList(list);
+			}
+
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return collectData;
+	}
+
+}
